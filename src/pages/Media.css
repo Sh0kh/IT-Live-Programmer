@@ -1,0 +1,180 @@
+@media(max-width:1400px){
+      .MyProject{
+        padding-right: 100px !important
+    }
+}
+@media(max-width:1300px){
+     .MyProject{
+        padding-right: 50px !important;
+    }
+}
+@media(max-width:1240px){
+     .MyProject{
+        padding-right: 0px !important;
+    }
+}
+@media(max-width:1200px){
+
+    
+}
+@media(max-width:1180px){
+     .MyProject__card{
+        padding: 10px;
+        width: 250px;
+    }
+}
+@media(max-width:1085px){
+     .MyProject__card{
+        padding: 10px;
+        width: 220px;
+    }
+    .Modal{
+        width: 80%;
+    }
+}
+@media(max-width:1024px){
+    .NavBar label{
+        width: 100%;
+    }
+     .MyProject__card{
+        padding: 30px;
+        width: 260px;
+    }
+ .MyProject__wrapper{
+        grid-template-columns: repeat(2,1fr) !important;
+    }
+}
+@media(max-width:950px){
+    .MainLayout{
+        padding: 5px !important;
+        padding-top: 10px !important;
+        gap: 10px !important;
+    }
+}
+@media(max-width:860px){
+   
+}
+@media(max-width:768px){
+    .Sidbar{
+        display: none !important;
+    }
+    .NavBar form{
+        display: none;
+    }
+    .NavbarBtn{
+        display: none;
+    }
+    .burger{
+        display: block !important;
+    }
+ .MyProject__card{
+        margin: 0 auto;
+        width: 300px;
+    }
+}
+@media(max-width:700px){
+   
+  
+}
+@media(max-width:640px){
+   .MyProject__card{
+    width: 250px;
+   }
+}
+@media(max-width:600px){
+    .Project h1{
+        font-size: 30px;
+    }
+    .Project h2{
+        font-size: 20px;
+    }
+    .Project__card__worker__title{
+        font-size:15px;
+    }
+    .Project__card{
+
+    }
+}
+@media(max-width:540px){
+    .MyProject__card{
+        padding: 10px;
+        width: 220px;
+       }
+    .MyProject__wrapper{
+        gap: 10px !important;
+    }
+    .Payment__title{
+        flex-direction: column;
+        gap: 10px;
+    }
+    .Modal{
+        width: 90%;
+        /* margin: 0 auto; */
+        padding: 10px;
+    }
+    .DeleteModal{
+        padding: 0px;
+    }
+}
+@media(max-width:500px){
+    .PaymentTable{
+        width: 97%;
+        margin: 0 auto;
+    }
+    .PaymentTable{
+        padding: 15px;
+    }
+}
+@media(max-width:410px){
+    .PaymentTable{
+        overflow-x: scroll;
+    }
+    .PaymentTable table{
+        width: 400px;
+    }
+}
+@media(max-width:450px){
+   .MyProject__card{
+        padding: 5px;
+        width: 200px !important;
+    }
+    .Modal__wrapper{
+        flex-direction: column;
+    }
+}
+@media(max-width:420px){
+ .MyProject__wrapper{
+        grid-template-columns: repeat(1,1fr) !important;
+    }
+ .MyProject__card{
+        padding: 20px;
+        width: 80% !important;
+    }
+    .Contracts h1{
+        font-size: 35px;
+    }
+}
+@media(max-width:350px){
+    .Project h1{
+        font-size: 25px;
+    }
+}
+@media(max-width:320px){
+ .MyProject__card{
+        padding: 10px;
+        width: 95% !important;
+    }
+    .Contracts h1{
+        font-size: 30px;
+    }
+}
+@media(max-width:350px){
+
+
+}
+@media(max-width:325px){
+   
+}
+@media(max-width:300px){
+    
+}
