@@ -6,17 +6,16 @@ import MainLayout from "./layouts/MainLayout"
 import Payments from "./pages/Payments"
 import './pages/Media.css'
 import Project from "./pages/Project"
-
 function App() {
-
+ 
   return (
     <Router>
       <Routes>
         <Route path="/" element={<AppLayout />} >
           <Route element={<MainLayout />} >
-            {/* <Route index element={<Home />} /> */}
+            <Route index element={<Home />} />
             <Route path="/payments" element={<Payments />} />
-            <Route index element={<Project />} />
+            <Route path="/project/:ID" element={<Project />} />
             <Route path="employees" element={<EmployeeList />} />
           </Route>
         </Route>

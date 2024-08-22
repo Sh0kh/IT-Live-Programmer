@@ -1,20 +1,20 @@
-import React, { act, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Card,
   Typography,
   List,
   ListItem,
   ListItemPrefix,
-  ListItemSuffix,
-  Chip,
   Accordion,
   AccordionHeader,
   AccordionBody,
 } from "@material-tailwind/react";
+
 import {  ChevronDownIcon } from "@heroicons/react/24/outline";
 import { NavLink } from 'react-router-dom';
 import { useLocation } from 'react-router-dom'
 import '../index.css'
+import { $axios } from '../utils';
 export default function Sidebar() {
   const location = useLocation()
   const Dashboard = location.pathname === '/'
@@ -28,6 +28,29 @@ export default function Sidebar() {
 const  ActiveNav = ()=>{
   setActive(!active)
 } 
+
+
+
+
+const [dataProject, setDataProject] = useState([])
+const getMyProject = () =>{
+  $axios.get('/employee/project/getMyProjects',
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    }
+  )
+  .then((response)=>{
+    setDataProject(response?.data)    
+  })
+  .catch((error)=>{
+    console.log(error);    
+  })
+}
+useEffect(()=>{
+  getMyProject()
+},[])
   return (
     <Card className="Sidbar w-[270px]  p-[25px] pt-[101px] shadow-xl shadow-blue-gray-900/5 bg-customBg rounded-[50px]  flex flex-col  justify-between ">
       <List className='min-w-full'>
@@ -52,20 +75,14 @@ const  ActiveNav = ()=>{
           </ListItem>
           <AccordionBody className="py-1">
             <List className="p-0">
-             <NavLink to='/'>
+              {dataProject?.map((i)=>(
+             <NavLink key={i.project.id} to={`/project/${i.project.id}`}>
              <ListItem className={`font-montserrat text-[16px] w-[180px] rounded-[50px] text-white hover:bg-btnColor ${Dashboard ? 'bg-[#3C3C44]' : ''}`}> 
-                <ListItemPrefix>
-                 
-                </ListItemPrefix>
-                Crm sistemasi
+
+                {i.project.name}
               </ListItem>
              </NavLink>
-              <ListItem className={`font-montserrat text-[16px] w-[180px] rounded-[50px] text-white hover:bg-btnColor ${Dashboard ? 'bg-[#3C3C44]' : ''}`}>
-                <ListItemPrefix>
-                  
-                </ListItemPrefix>
-                Web site
-              </ListItem>
+              ))}
             </List>
           </AccordionBody>
         </Accordion>

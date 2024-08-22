@@ -1,74 +1,40 @@
-import React, { useState, useRef, useEffect } from 'react'
-import Programmer from '/images/PmProgrammer.svg'
-import Design from '/images/PmDesign.svg'
-import SearchEmpte from '/images/SearchEmpty.png'
+import React, { useState, useRef, useEffect } from 'react';
+import { $axios } from '../utils';
+import { useParams } from 'react-router-dom';
+// gql
+
+import { gql, useQuery } from '@apollo/client';
+const GET_TASKS = gql`
+    query{
+  TaskCommon(
+    ProjectId: "d02e1bb7-c013-4773-a72b-103dca4d17c0"
+    SortByEmployeeProjectId: "65563a6a-b27f-483a-9008-7b7daf7d1aa3"
+  ) {
+    condition
+    tasks {
+      id
+      title
+      description
+      fileUrl
+      lastTypeUpdateAt
+    	endAt
+    }
+  }
+}
+`
 function Project() {
-    const modalRef = useRef(null);
     const modalRef2 = useRef(null);
-    const modalRef3 = useRef(null);
-    const modalRef4 = useRef(null);
-    const [isActiveSmallModal, setActiveSmallModal] = useState(false)
-    const ActiveSmallModal = () => {
-        setActiveSmallModal(!isActiveSmallModal)
-    }
-    const [deleteModal, SetDeleteModal] = useState(false)
-    const DeleteModalActive = () => {
-        SetDeleteModal(!deleteModal)
-    }
-    const DeleteModal = () => {
-        ActiveSmallModal()
-        DeleteModalActive()
-    }
+    const [IsMission, setMission] = useState(false);
 
-    const [IsMission, setMission] = useState(false)
     const MissionModal = () => {
-        setMission(!IsMission)
-    }
-    const [AddPerson, setAddPerson] = useState(false)
-    const AddPersonActive = () => {
-        setAddPerson(!AddPerson)
-    }
-    const [isMessage, setMessage] = useState(false)
-    const MessageActive = () => {
-        setMessage(!isMessage)
-    }
-
-    const [isTeam, setTeam] = useState(false)
-    const TeamModal = () => {
-        setTeam(!isTeam)
-    }
-
-    const handleClickOutside = (e) => {
-        if (modalRef.current && !modalRef.current.contains(e.target)) {
-            DeleteModal()
-        }
+        setMission(!IsMission);
     };
+
     const handleClickOutside2 = (e) => {
         if (modalRef2.current && !modalRef2.current.contains(e.target)) {
-            setMission(false)
+            setMission(false);
         }
     };
-    const handleClickOutside3 = (e) => {
-        if (modalRef3.current && !modalRef3.current.contains(e.target)) {
-            setAddPerson(false)
-        }
-    };
-    const handleClickOutside4 = (e) => {
-        if (modalRef4.current && !modalRef4.current.contains(e.target)) {
-            setMessage(false)
-        }
-    };
-
-    useEffect(() => {
-        if (deleteModal) {
-            document.addEventListener('mousedown', handleClickOutside);
-        } else {
-            document.removeEventListener('mousedown', handleClickOutside);
-        }
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [deleteModal,]);
 
     useEffect(() => {
         if (IsMission) {
@@ -80,166 +46,269 @@ function Project() {
             document.removeEventListener('mousedown', handleClickOutside2);
         };
     }, [IsMission]);
-    useEffect(() => {
-        if (AddPerson) {
-            document.addEventListener('mousedown', handleClickOutside3);
-        } else {
-            document.removeEventListener('mousedown', handleClickOutside3);
-        }
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside3);
-        };
-    }, [AddPerson]);
-    useEffect(() => {
-        if (isMessage) {
-            document.addEventListener('mousedown', handleClickOutside4);
-        } else {
-            document.removeEventListener('mousedown', handleClickOutside4);
-        }
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside4);
-        };
-    }, [isMessage]);
+// GET project 
 
-    const [isOpen, setOpen] = useState(null)
-    const toggleModal = (e) => {
-        setOpen(isOpen === e ? null : e);
+const {ID} = useParams()
+const [ProjectName, SetProjectName] = useState([])
+const getProject = ()=>{
+    $axios.get(`/project/getById/${ID}`,{
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+    })
+    .then((response)=>{
+        SetProjectName(response.data)
+    })
+    .catch((error)=>{
+        console.log(error);
+    })
+}
+const [employeeId, setEmployeeId] = useState('')
+const getProjectEmployee = ()=>{
+    $axios.get('/employee/project/getMyProjects',{
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+    })
+    .then((response)=>{
+        setEmployeeId(response.data[0].employeeProjectId)
+    })
+    .catch((error)=>{
+        console.log(error);  
+    })
+}
+
+useEffect(()=>{
+    getProject()
+    getProjectEmployee()
+},[])
+
+
+// Get Task
+
+const {data:Task} = useQuery(GET_TASKS)
+console.log(Task?.TaskCommon[0]?.tasks[0]?.title);
+
+// PATCH task
+
+const Patch = () =>{
+    $axios.patch(`/task/updateCondition/${ID}`,{
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+    })
+    .then((response)=>{
+        
+    })
+    .catch((error)=>{
+        console.log(error);
+        
+    })
+}
+
+
+
+    // Drag and Drop
+    const [items, setItems] = useState({
+        column1: ['Mediya yozish', 'Backend yozish',],
+        column2: [],
+        column3: [],
+    });
+
+    const draggingItem = useRef(null);
+    const draggingIndex = useRef(null);
+    const [cursor, setCursor] = useState('grab');
+
+    const handleDragStart = (event) => {
+        draggingItem.current = event.target;
+        draggingIndex.current = parseInt(event.target.dataset.index, 10);
+        event.dataTransfer.effectAllowed = 'move';
+        setCursor('grabbing');
     };
+
+    const handleDragEnd = () => {
+        draggingItem.current = null;
+        draggingIndex.current = null;
+        setCursor('grab');
+    };
+
+    const handleDragOver = (event) => {
+        event.preventDefault();
+    };
+
+    const handleDrop = (event, column) => {
+        event.preventDefault();
+        const targetIndex = parseInt(event.target.dataset.index, 10);
+        const droppedItemId = draggingItem.current.id;
+
+        if (draggingItem.current && targetIndex !== undefined) {
+            setItems(prevItems => {
+                const sourceColumn = Object.keys(prevItems).find(col => prevItems[col].includes(droppedItemId));
+
+                console.log('prevItems:', prevItems);
+                console.log('sourceColumn:', sourceColumn);
+                console.log('targetIndex:', targetIndex);
+
+                if (!sourceColumn || !Array.isArray(prevItems[sourceColumn])) {
+                    console.warn('Source column is not an array or does not exist.');
+                    return prevItems;
+                }
+
+                const updatedSourceItems = prevItems[sourceColumn].filter(item => item !== droppedItemId);
+
+                let updatedTargetItems;
+                if (column === sourceColumn) {
+                    updatedTargetItems = [
+                        ...updatedSourceItems.slice(0, targetIndex),
+                        droppedItemId,
+                        ...updatedSourceItems.slice(targetIndex)
+                    ];
+                } else {
+                    if (!Array.isArray(prevItems[column])) {
+                        console.warn('Target column is not an array.');
+                        return prevItems;
+                    }
+
+                    updatedTargetItems = [
+                        ...prevItems[column].slice(0, targetIndex),
+                        droppedItemId,
+                        ...prevItems[column].slice(targetIndex)
+                    ];
+                }
+
+                return {
+                    ...prevItems,
+                    [sourceColumn]: column === sourceColumn ? updatedSourceItems : updatedSourceItems,
+                    [column]: column === sourceColumn ? updatedTargetItems : updatedTargetItems
+                };
+            });
+        }
+    };
+
+
+
 
     return (
         <div className='Project'>
             <div className='mt-[50px] overflow-hidden'>
                 <h1 className='text-[42px] font-[600] text-TitleColor font-montserrat'>
-                    “Akfa medline” sayti <span className='font-[500] text-[#83818E] text-[20px] font-montserrat'>/topshiriqlar</span>
+                    {ProjectName}<span className='font-[500] text-[#83818E] text-[20px] font-montserrat'>/topshiriqlar</span>
                 </h1>
-                <div className=' overflow-x-scroll pb-[50px]'>
-                    <div className='flex  gap-[25px] mt-[50px] w-[300px]'>
+                <div className='overflow-x-scroll pb-[50px]'>
+                    <div className='flex gap-[25px] mt-[50px] w-[500px]'>
                         <div className='Project__card'>
-                            <h2 className='text-[#83818E] font-[600] font-montserrat text-[25px] mb-[25px]' >
+                            <h2 className='text-[#83818E] font-[600] font-montserrat text-[25px] mb-[25px]'>
                                 Boshlanish
                             </h2>
-                            <div className='w-[302px] h-[340px] p-[15px] bg-white border-1 border-[#ABAAB9] rounded-[8px]'>
-                                <div className='relative cursor-pointer rounded-[8px] border-[0.5px] border-[#ABAAB9] px-[11px] py-[10px] flex items-center justify-between mb-[25px]'>
-                                    <div onClick={MissionModal} className='flex items-center gap-[10px]'>
-                                        <div className=''>
-                                            <img className='w-[35px] h-[35px]' src={Programmer} alt="" />
-                                        </div>
-                                        <span className='Project__card__worker__title font-[500] text-[#83818E] text-[20px] font-montserrat'>
-                                            dasturchi
-                                        </span>
+                            <div
+                                onDrop={(e) => handleDrop(e, 'column1')}
+                                onDragOver={handleDragOver}
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'flex-start',
+                                    position: 'relative',
+                                    cursor: cursor
+                                }}
+                                className='w-[302px] h-[340px] p-[15px] bg-white border-1 border-[#ABAAB9] rounded-[8px]'
+                            >
+                                {items.column1.map((item, index) => (
+                                    <div
+                                        className='px-[10px] border-[1px] border-[#ABAAB9] w-full rounded-[10px] mb-[5px]'
+                                        key={item}
+                                        id={item}
+                                        onClick={MissionModal}
+                                        data-index={index}
+                                        draggable
+                                        onDragStart={handleDragStart}
+                                        onDragEnd={handleDragEnd}
+                                    >
+                                        {item}
                                     </div>
-                                    <button onClick={ActiveSmallModal} className='cursor-pointer w-[50px] flex items-center justify-center' >
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="5" height="19" viewBox="0 0 5 19" fill="none">
-                                            <circle cx="2.5" cy="2.5" r="2.5" fill="black" />
-                                            <circle cx="2.5" cy="9.5" r="2.5" fill="black" />
-                                            <circle cx="2.5" cy="16.5" r="2.5" fill="black" />
-                                        </svg>
-                                    </button>
-                                    <div onClick={DeleteModalActive} className={`smallModal absolute  py-[5px] pl-[10px] pr-[5px] right-[-50px] rounded-[10px] opacity-0 transition duration-300 ${isActiveSmallModal ? 'smallModalActive' : ''}`}>
-                                        <div className='bg-[#FEE2D6] p-[5px]  rounded-[8px]'>
-                                            <svg className='text-[25px] ' xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16"><path fill="currentColor" d="M7 3h2a1 1 0 0 0-2 0M6 3a2 2 0 1 1 4 0h4a.5.5 0 0 1 0 1h-.564l-1.205 8.838A2.5 2.5 0 0 1 9.754 15H6.246a2.5 2.5 0 0 1-2.477-2.162L2.564 4H2a.5.5 0 0 1 0-1zm1 3.5a.5.5 0 0 0-1 0v5a.5.5 0 0 0 1 0zM9.5 6a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5m-4.74 6.703A1.5 1.5 0 0 0 6.246 14h3.508a1.5 1.5 0 0 0 1.487-1.297L12.427 4H3.573z"></path></svg>
-                                        </div>
-                                    </div>
-                                </div>
+                                ))}
                             </div>
                         </div>
                         <div className='Project__card'>
-                            <h2 className='text-[#83818E] font-[600] font-montserrat text-[25px] mb-[25px]' >
+                            <h2 className='text-[#83818E] font-[600] font-montserrat text-[25px] mb-[25px]'>
                                 Jarayon
                             </h2>
-                            <div className='w-[302px] h-[340px] p-[15px] bg-white border-1 border-[#ABAAB9] rounded-[8px]'>
-                                <div className='cursor-pointer rounded-[8px] border-[0.5px] border-[#ABAAB9] px-[11px] py-[10px] flex items-center justify-between mb-[25px]'>
-                                    <div onClick={MissionModal} className='flex items-center gap-[10px]'>
-                                        <div className=''>
-                                            <img className='w-[35px] h-[35px]' src={Design} alt="" />
-                                        </div>
-                                        <span className='Project__card__worker__title font-[500] text-[#83818E] text-[20px] font-montserrat'>
-                                            dasturchi
-                                        </span>
+                            <div
+                                onDrop={(e) => handleDrop(e, 'column2')}
+                                onDragOver={handleDragOver}
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'flex-start',
+                                    position: 'relative',
+                                    cursor: cursor
+                                }}
+                                className='w-[302px] h-[340px] p-[15px] bg-white border-1 border-[#ABAAB9] rounded-[8px]'
+                            >
+                                {items.column2.map((item, index) => (
+                                    <div
+                                        className='px-[10px] border-[1px] border-[#ABAAB9] w-full rounded-[10px] mb-[5px]'
+                                        key={item}
+                                        id={item}
+                                        data-index={index}
+                                        draggable
+                                        onDragStart={handleDragStart}
+                                        onClick={MissionModal}
+                                        onDragEnd={handleDragEnd}
+                                    >
+                                        {item}
                                     </div>
-                                    <button className='cursor-pointer' >
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="5" height="19" viewBox="0 0 5 19" fill="none">
-                                            <circle cx="2.5" cy="2.5" r="2.5" fill="black" />
-                                            <circle cx="2.5" cy="9.5" r="2.5" fill="black" />
-                                            <circle cx="2.5" cy="16.5" r="2.5" fill="black" />
-                                        </svg>
-                                    </button>
-                                    <div onClick={DeleteModalActive} className={`smallModal absolute  py-[5px] pl-[10px] pr-[5px] right-[-50px] rounded-[10px] opacity-0 transition duration-300 ${isActiveSmallModal ? 'smallModalActive' : ''}`}>
-                                        <div className='bg-[#FEE2D6] p-[5px]  rounded-[8px]'>
-                                            <svg className='text-[25px] ' xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16"><path fill="currentColor" d="M7 3h2a1 1 0 0 0-2 0M6 3a2 2 0 1 1 4 0h4a.5.5 0 0 1 0 1h-.564l-1.205 8.838A2.5 2.5 0 0 1 9.754 15H6.246a2.5 2.5 0 0 1-2.477-2.162L2.564 4H2a.5.5 0 0 1 0-1zm1 3.5a.5.5 0 0 0-1 0v5a.5.5 0 0 0 1 0zM9.5 6a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5m-4.74 6.703A1.5 1.5 0 0 0 6.246 14h3.508a1.5 1.5 0 0 0 1.487-1.297L12.427 4H3.573z"></path></svg>
-                                        </div>
-                                    </div>
-                                </div>
+                                ))}
                             </div>
                         </div>
                         <div className='Project__card'>
-                            <h2 className='text-[#83818E] font-[600] font-montserrat text-[25px] mb-[25px]' >
+                            <h2 className='text-[#83818E] font-[600] font-montserrat text-[25px] mb-[25px]'>
                                 Test
                             </h2>
-                            <div className='w-[302px] h-[340px] p-[15px] bg-white border-1 border-[#ABAAB9] rounded-[8px]'>
-                                <div className='cursor-pointer  rounded-[8px] border-[0.5px] border-[#ABAAB9] px-[11px] py-[10px] flex items-center justify-between mb-[25px]'>
-                                    <div onClick={MissionModal} className='flex items-center gap-[10px]'>
-                                        <div className=''>
-                                            <img className='w-[35px] h-[35px]' src={Programmer} alt="" />
-                                        </div>
-                                        <span className='Project__card__worker__title font-[500] text-[#83818E] text-[20px] font-montserrat'>
-                                            dasturchi
-                                        </span>
+                            <div
+                                onDrop={(e) => handleDrop(e, 'column3')}
+                                onDragOver={handleDragOver}
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'flex-start',
+                                    position: 'relative',
+                                    cursor: cursor
+                                }}
+                                className='w-[302px] h-[340px] p-[15px] bg-white border-1 border-[#ABAAB9] rounded-[8px]'
+                            >
+                                {items.column3.map((item, index) => (
+                                    <div
+                                        className='px-[10px] border-[1px] border-[#ABAAB9] w-full rounded-[10px] mb-[5px]'
+                                        key={item}
+                                        id={item}
+                                        data-index={index}
+                                        draggable
+                                        onClick={MissionModal}
+                                        onDragStart={handleDragStart}
+                                        onDragEnd={handleDragEnd}
+                                    >
+                                        {item}
                                     </div>
-                                    <button className='cursor-pointer' >
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="5" height="19" viewBox="0 0 5 19" fill="none">
-                                            <circle cx="2.5" cy="2.5" r="2.5" fill="black" />
-                                            <circle cx="2.5" cy="9.5" r="2.5" fill="black" />
-                                            <circle cx="2.5" cy="16.5" r="2.5" fill="black" />
-                                        </svg>
-                                    </button>
-                                </div>
-                               
+                                ))}
                             </div>
                         </div>
                         <div className='Project__card'>
-                            <h2 className='text-[#83818E] font-[600] font-montserrat text-[25px] mb-[25px]' >
+                            <h2 className='text-[#83818E] font-[600] font-montserrat text-[25px] mb-[25px]'>
                                 Yakun
                             </h2>
-                            <div className='w-[302px] h-[340px] p-[15px] bg-white border-1 border-[#ABAAB9] rounded-[8px]'>
-                                <div className='cursor-pointer rounded-[8px] border-[0.5px] border-[#ABAAB9] px-[11px] py-[10px] flex items-center justify-between mb-[25px]'>
-                                    <div onClick={MissionModal} className='flex items-center gap-[10px]'>
-                                        <div className=''>
-                                            <img className='w-[35px] h-[35px]' src={Programmer} alt="" />
-                                        </div>
-                                        <span className='Project__card__worker__title font-[500] text-[#83818E] text-[20px] font-montserrat'>
-                                            dasturchi
-                                        </span>
-                                    </div>
-                                    <button className='cursor-pointer' >
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="5" height="19" viewBox="0 0 5 19" fill="none">
-                                            <circle cx="2.5" cy="2.5" r="2.5" fill="black" />
-                                            <circle cx="2.5" cy="9.5" r="2.5" fill="black" />
-                                            <circle cx="2.5" cy="16.5" r="2.5" fill="black" />
-                                        </svg>
-                                    </button>
-                                </div>
-                               
+                            <div
+                                className='w-[302px] h-[340px] p-[15px] bg-white border-1 border-[#ABAAB9] rounded-[8px]'
+                            >
+
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div className={`DeleteModal p-[5px] bg-[#d9d9d9bc] fixed inset-0 flex items-center justify-center ${deleteModal ? 'DeleteModalActive' : ''}`}>
-                <div ref={modalRef} className='Modal bg-customBg rounded-[16px] p-[30px] w-[360px]'>
-                    <h2 className='text-btnColor text-[26px] font-[600] text-center '>
-                        Xodim qo’shish
-                    </h2>
-                    <div className='flex items-center justify-center gap-[20px] mt-[20px]'>
-                        <button onClick={DeleteModal} className='text-black bg-btnColor px-[20px] py-[5px] rounded-[16px] border-2 border-btnColor hover:bg-transparent hover:text-white transition duration-500 '>
-                            Ha
-                        </button>
-                        <button onClick={DeleteModal} className='text-black bg-btnColor px-[20px] py-[5px] rounded-[16px] border-2 border-btnColor hover:bg-transparent hover:text-white transition duration-500 '>
-                            Yoq
-                        </button>
-                    </div>
-                </div>
-            </div>
+
             <div className={`DeleteModal p-[5px]  bg-[#d9d9d9bc] fixed inset-0 flex items-center justify-center ${IsMission ? 'DeleteModalActive' : ''}`}>
                 <div ref={modalRef2} className='Modal  bg-white rounded-[16px] p-[30px] w-[60%] duration-500 ease-in-out overflow-hidden '>
                     <div className='flex items-center justify-between'>
@@ -266,15 +335,15 @@ function Project() {
                             </h2>
                         </div>
                         <div className='border-[2px] rounded-[16px] border-[#83818E] p-[15px] mt-[15px]'>
-                        <p className=''>
-        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Veritatis officiis quae totam iure maiores? Esse sapiente iure blanditiis illum doloremque, voluptate tempore! Facere iusto ad iure magni temporibus ut soluta.
-                        </p>
+                            <p className=''>
+                                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Veritatis officiis quae totam iure maiores? Esse sapiente iure blanditiis illum doloremque, voluptate tempore! Facere iusto ad iure magni temporibus ut soluta.
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    )
+    );
 }
 
-export default Project
+export default Project;

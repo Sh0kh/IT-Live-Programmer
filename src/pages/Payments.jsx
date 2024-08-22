@@ -2,13 +2,22 @@ import React from 'react';
 import Calendar from '/images/FinanceCalendar.png';
 import Money from '/images/FinanceMoney.png';
 import FinanceType from '/images/FinanceType.png';
+import { gql, useQuery } from '@apollo/client';
 
+const GET_MYPAYMENTS = gql`
+    query{
+    EmployeeFinance(EmployeeId:24){
+      id
+      type
+      comment
+      createdAt
+    }
+  }
+`
 function Payments() {
-  const PaymentFakeData = Array.from({ length: 10 }, (_, index) => ({
-    month: `Yanvar`,
-    Summa: `${25_000_000 + index * 1_000_000}`,
-    Type: index % 2 === 0 ? 'naqt' : 'kartochka',
-  }));
+  const {data:MyPayments} = useQuery(GET_MYPAYMENTS)
+
+
 
   return (
     <div className='Payment w-full pb-[50px]'>
@@ -41,17 +50,17 @@ function Payments() {
               </tr>
             </thead>
             <tbody>
-              {PaymentFakeData.map((item, index) => (
+              {MyPayments?.EmployeeFinance?.map((item, index) => (
                 <tr key={index} className='mt-[25px]'>
                   <td className='text-left pt-[25px]'>
                     <span className='text-[16px] font-[400] text-[#2C393D]'>{index + 1}.</span>
-                    <span className='text-[16px] font-[400] text-[#2C393D]'> {item.month}</span>
+                    <span className='text-[16px] font-[400] text-[#2C393D]'> {item.createdAt}</span>
                   </td>
                   <td className='pt-[25px]'>
-                    <span className='text-[16px] font-[400] text-[#2C393D]'>{item.Summa}</span>
+                    <span className='text-[16px] font-[400] text-[#2C393D]'>{item.price}</span>
                   </td>
                   <td className='pt-[25px]'>
-                    <span className='text-[16px] font-[400] text-[#2C393D]'>{item.Type}</span>
+                    <span className='text-[16px] font-[400] text-[#2C393D]'>{item.type}</span>
                   </td>
                 </tr>
               ))}
