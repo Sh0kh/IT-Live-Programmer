@@ -6,6 +6,7 @@ import MainLayout from "./layouts/MainLayout"
 import Payments from "./pages/Payments"
 import './pages/Media.css'
 import Project from "./pages/Project"
+import Profil from "./pages/Profil"
 function App() {
  
   return (
@@ -17,6 +18,7 @@ function App() {
             <Route path="/payments" element={<Payments />} />
             <Route path="/project/:ID" element={<Project />} />
             <Route path="employees" element={<EmployeeList />} />
+            <Route path="/profil" element={<Profil/>}/>
           </Route>
         </Route>
       </Routes>

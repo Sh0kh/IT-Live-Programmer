@@ -2,13 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { $axios } from '../utils';
 import { useParams } from 'react-router-dom';
 import { gql, useQuery } from '@apollo/client';
-
 const GET_TASKS = gql`
-    query {
-        TaskCommon(
-            ProjectId: "d02e1bb7-c013-4773-a72b-103dca4d17c0"
-            SortByEmployeeProjectId: "65563a6a-b27f-483a-9008-7b7daf7d1aa3"
-        ) {
+    query GetTasks($employeeId: String!) {
+        TaskCommon(SortByEmployeeProjectId: $employeeId) {
             condition
             tasks {
                 id
@@ -23,7 +19,11 @@ const GET_TASKS = gql`
 `;
 
 function Project() {
-    const { data: getAllTasks, loading, error } = useQuery(GET_TASKS);
+    const [employeeId, setEmployeeId] = useState('');
+    const { data: getAllTasks, loading, error } = useQuery(GET_TASKS, {
+        variables: { employeeId },
+        skip: !employeeId,  // Skip query execution until employeeId is set
+    });
     const [items, setItems] = useState({
         column1: [],
         column2: [],
@@ -71,7 +71,7 @@ function Project() {
     const modalRef2 = useRef(null);
     const [isMission, setMission] = useState(false);
     const [projectName, setProjectName] = useState('');
-    const [employeeId, setEmployeeId] = useState('');
+
     const { ID } = useParams();
     const [cursor, setCursor] = useState('grab');
 
@@ -129,7 +129,7 @@ function Project() {
     useEffect(() => {
         getProject();
         getProjectEmployee();
-    }, []);
+    }, [ID]);
 
     const columnStatusMap = {
         column1: 'BEGIN',
@@ -139,7 +139,7 @@ function Project() {
     };
 
     const createAndSendTask = (taskId, status) => {
-        const url = `/task/updateCondition/${taskId}`;
+        const url = `/task/updateCondition/${taskId}/${status}`;
         const data = {
             taskId: taskId,
             condition: status,

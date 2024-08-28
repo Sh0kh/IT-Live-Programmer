@@ -113,4 +113,46 @@ input[type=number]::-webkit-outer-spin-button {
     opacity: 0;
   }
   
-  
+  .modal-foto {
+    width: 100%;
+}
+
+.file-input-container {
+    width: 100%;
+}
+.file-input-container {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    padding: 10px;
+    border: 1px solid #D8F275;
+    border-radius: 16px;
+    background-color: #D8F275;
+    cursor: pointer;
+    color: black;
+    transition: 0.5s;
+    width: 100%;
+}
+
+.file-input-container input[type=file] {
+    cursor: pointer;
+    position: absolute;
+    font-size: 100px;
+    opacity: 0;
+    right: 0;
+    top: 0;
+    cursor: pointer;
+}
+
+.file-input-container span {
+    display: block;
+    text-align: center;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.file-input-container:hover {
+    background-color: transparent;
+    color: white;
+    cursor: pointer;
+}
