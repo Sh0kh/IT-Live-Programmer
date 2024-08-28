@@ -1,23 +1,44 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import Calendar from '/images/FinanceCalendar.png';
 import Money from '/images/FinanceMoney.png';
 import FinanceType from '/images/FinanceType.png';
 import { gql, useQuery } from '@apollo/client';
-
+import { $axios } from '../utils';
 const GET_MYPAYMENTS = gql`
-    query{
-    EmployeeFinance(EmployeeId:24){
+    query($clientId: Int!){
+    EmployeeFinance(EmployeeId: $clientId){
       id
       type
       comment
       createdAt
+      price
     }
   }
 `
 function Payments() {
-  const {data:MyPayments} = useQuery(GET_MYPAYMENTS)
+  const [clientId, setClientId] = useState(null);
 
+  const GetID = () => {
+    $axios.get('/common-user/myInformation', {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    })
+    .then((response) => {
+      setClientId(response.data.id);
+    })
+    .catch((error) => {
+      console.error('Error fetching profile:', error);
+    });
+  };
 
+  useEffect(() => {
+    GetID();
+  }, []);
+  const {data:MyPayments} = useQuery(GET_MYPAYMENTS,{
+    variables: { clientId },
+    skip: !clientId
+  })
 
   return (
     <div className='Payment w-full pb-[50px]'>
@@ -54,7 +75,7 @@ function Payments() {
                 <tr key={index} className='mt-[25px]'>
                   <td className='text-left pt-[25px]'>
                     <span className='text-[16px] font-[400] text-[#2C393D]'>{index + 1}.</span>
-                    <span className='text-[16px] font-[400] text-[#2C393D]'> {item.createdAt}</span>
+                    <span className='text-[16px] font-[400] text-[#2C393D]'> {item.createdAt.split('T')[0]}</span>
                   </td>
                   <td className='pt-[25px]'>
                     <span className='text-[16px] font-[400] text-[#2C393D]'>{item.price}</span>
