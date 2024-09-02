@@ -119,18 +119,36 @@ function Project() {
                 },
             })
             .then((response) => {
-                setEmployeeId(response.data[0]?.employeeProjectId);
+                findProject(response.data)
             })
             .catch((error) => {
                 console.error(error);
             });
     };
 
-    useEffect(() => {
-        getProject();
-        getProjectEmployee();
-    }, [ID]);
+ useEffect(() => {
+    getProject();
+}, [ID]);
 
+useEffect(() => {
+    if (ID) {
+        getProjectEmployee();
+    }
+}, [ID]);
+
+    const [employeeRole, setEmployeeRole] = useState(null) 
+
+    const findProject = (data) => {
+        const foundObject = data.find(obj => obj.project.id === ID);
+        if (foundObject) {
+        setEmployeeId(foundObject.employeeProjectId);
+        setEmployeeRole(foundObject.employeeProjectRole)
+        } else {
+          console.log("ID не найден.");
+        }
+      };
+
+      
     const columnStatusMap = {
         column1: 'BEGIN',
         column2: 'PROCESS',
@@ -166,21 +184,27 @@ function Project() {
 
     const handleDrop = (event, targetColumn) => {
         event.preventDefault();
-
+    
         const draggedItemId = event.dataTransfer.getData('text');
         const newStatus = columnStatusMap[targetColumn];
+    
+        // Find the source column where the task is coming from
+        const sourceColumn = Object.keys(items).find((col) =>
+            items[col].some((task) => task.id === draggedItemId)
+        );
 
-        // Создание задачи и отправка на сервер
+        // If the task is dropped in the same column, do nothing
+        if (sourceColumn === targetColumn) return;
+    
+        // Create the task and send it to the server
         createAndSendTask(draggedItemId, newStatus);
-
-        // Обновляем состояние задач на клиенте
+    
+        // Update the state to move the task to the target column
         setItems((prevItems) => {
-            const sourceColumn = Object.keys(prevItems).find((col) => prevItems[col].some((task) => task.id === draggedItemId));
-            if (!sourceColumn) return prevItems;
-
+            const draggedTask = prevItems[sourceColumn].find((task) => task.id === draggedItemId);
             const updatedSourceItems = prevItems[sourceColumn].filter((task) => task.id !== draggedItemId);
-            const updatedTargetItems = [...prevItems[targetColumn], ...prevItems[sourceColumn].find((task) => task.id === draggedItemId)];
-
+            const updatedTargetItems = [...prevItems[targetColumn], draggedTask];
+    
             return {
                 ...prevItems,
                 [sourceColumn]: updatedSourceItems,
@@ -188,6 +212,8 @@ function Project() {
             };
         });
     };
+    
+    
 
     const handleDragStart = (event, taskId) => {
         event.dataTransfer.setData('text', taskId);
@@ -201,6 +227,7 @@ function Project() {
     const handleDragOver = (event) => {
         event.preventDefault();
     };
+
 
     return (
         <div className='Project'>
