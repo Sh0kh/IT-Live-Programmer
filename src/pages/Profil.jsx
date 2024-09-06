@@ -158,6 +158,44 @@ function Profil() {
     console.log(error);
   })
   }
+
+  const ESC_Close = (e) =>{
+    if(e.key === `Escape`){
+      setFotoModal(false)
+      setMdoal(false)
+    }
+  }
+  useEffect(()=>{
+    document.addEventListener(`keydown`, ESC_Close)
+    return ()=>{
+      document.removeEventListener(`keydown`,ESC_Close)
+    }
+  },[])
+
+  const E_Open = (e)=>{
+    if(e.key === `e`){
+      setMdoal(true)
+    }
+  }
+  useEffect(()=>{
+    document.addEventListener(`keydown`, E_Open)
+    return ()=>{
+      document.removeEventListener(`keydown`, E_Open)
+    }
+  },[])
+  
+  const R_Open = (e)=>{
+    if(e.key === `r`){
+      setFotoModal(true)
+    }
+  }
+  useEffect(()=>{
+    document.addEventListener(`keydown`, R_Open)
+    return ()=>{
+      document.removeEventListener(`keydown`, R_Open)
+    }
+  },[])
+
   return (
     <div className='Profile w-full mt-[50px]'>
       <div className='flex items-center justify-between'>
@@ -214,12 +252,12 @@ function Profil() {
                   onChange={(e) => setEdit({ ...edit, phoneNumber: e.target.value })}
                   type="text" placeholder='Telefon raqam' className='bg-transparent outline-none border-b-[2px] border-b-[#83818E] w-full text-[white] pb-[5px]  mb-[20px]' />
               </label>
-              <label htmlFor="">
+              {/* <label htmlFor="">
                 <input
                   value={edit.password}
                   onChange={(e) => setEdit({ ...edit, password: e.target.value })}
                   type="text" placeholder='Parol' className='bg-transparent outline-none border-b-[2px] border-b-[#83818E] w-full text-[white] pb-[5px]  mb-[20px]' />
-              </label>
+              </label> */}
               <button type='submit' className='bg-btnColor px-[20px] py-[10px] rounded-[16px] border-[2px] border-btnColor hover:text-[white] hover:bg-transparent transition duration-500 flex items-center justify-center gap-[10px] w-full'>
                 <svg className='text-[20px] ' xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10s10-4.477 10-10S17.523 2 12 2m5 11h-4v4h-2v-4H7v-2h4V7h2v4h4z"></path></svg>
                 <span>

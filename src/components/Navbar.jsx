@@ -50,24 +50,29 @@ const  ActiveNav = ()=>{
   setAcActive(!acActive)
 } 
 const [dataProject, setDataProject] = useState([])
-const getMyProject = () =>{
-  $axios.get('/employee/project/getMyProjects',
-    {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    }
-  )
-  .then((response)=>{
-    setDataProject(response?.data)    
+const getMyProject = () => {
+  const SubRole = localStorage.getItem("SubRole")
+  $axios.get('/employee/project/getMyProjects', {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
   })
-  .catch((error)=>{
-    console.log(error);    
-  })
-}
+    .then((response) => {
+      const projects = response.data;
+      const frontEndProjects = projects.filter(item => item.employeeProjectRole === SubRole);
+    
+    setDataProject(frontEndProjects)
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+};
 useEffect(()=>{
   getMyProject()
 },[])
+
+
+
   return (
     <div className='NavBar w-full relative' >
       <div className='flex items-center  justify-between gap-[5px] w-full'>

@@ -33,24 +33,32 @@ const  ActiveNav = ()=>{
 
 
 const [dataProject, setDataProject] = useState([])
-const getMyProject = () =>{
-  $axios.get('/employee/project/getMyProjects',
-    {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    }
-  )
-  .then((response)=>{
-    setDataProject(response?.data)    
+const getMyProject = () => {
+  const SubRole = localStorage.getItem("SubRole")
+  $axios.get('/employee/project/getMyProjects', {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
   })
-  .catch((error)=>{
-    console.log(error);    
-  })
-}
+    .then((response) => {
+      const projects = response.data;
+      const frontEndProjects = projects.filter(item => item.employeeProjectRole === SubRole);
+    setDataProject(frontEndProjects)
+    console.log(frontEndProjects);
+    
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+};
 useEffect(()=>{
   getMyProject()
 },[])
+
+  const Exit = ()=>{
+    localStorage.clear();
+    window.location.reload()
+  }
   return (
     <Card className="Sidbar w-[270px]  p-[25px] pt-[101px] shadow-xl shadow-blue-gray-900/5 bg-customBg rounded-[50px]  flex flex-col  justify-between ">
       <List className='min-w-full'>
@@ -78,7 +86,6 @@ useEffect(()=>{
               {dataProject?.map((i)=>(
              <NavLink key={i.project.id} to={`/project/${i.project.id}`}>
              <ListItem className={`font-montserrat text-[16px] w-[180px] rounded-[50px] text-white hover:bg-btnColor ${Dashboard ? 'bg-[#3C3C44]' : ''}`}> 
-
                 {i.project.name}
               </ListItem>
              </NavLink>
@@ -95,7 +102,7 @@ useEffect(()=>{
         </ListItem>
         </NavLink>
       </List>
-        <ListItem className={`font-montserrat text-[16px] rounded-[50px] text-white hover:bg-btnColor  hover:opacity-100  mt-[180px]` }>
+        <ListItem onClick={Exit} className={`font-montserrat text-[16px] rounded-[50px] text-white hover:bg-btnColor  hover:opacity-100  mt-[180px]` }>
           <ListItemPrefix>
           <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 14 14"><path fill="currentColor" fillRule="evenodd" d="M0 1.5A1.5 1.5 0 0 1 1.5 0h7A1.5 1.5 0 0 1 10 1.5v1.939a2 2 0 0 0-.734 1.311H5.75a2.25 2.25 0 1 0 0 4.5h3.516A2 2 0 0 0 10 10.561V12.5A1.5 1.5 0 0 1 8.5 14h-7A1.5 1.5 0 0 1 0 12.5zm10.963 2.807A.75.75 0 0 0 10.5 5v1H5.75a1 1 0 0 0 0 2h4.75v1a.75.75 0 0 0 1.28.53l2-2a.75.75 0 0 0 0-1.06l-2-2a.75.75 0 0 0-.817-.163" clipRule="evenodd"></path></svg>
           </ListItemPrefix>
